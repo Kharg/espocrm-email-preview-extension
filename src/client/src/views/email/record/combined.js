@@ -29,6 +29,10 @@ define(['views/email/record/list', 'email-combined-view:helpers/version'], funct
             this.lastOpenId = null;
 
             this.on('remove', () => this.getParentView().clearView('combinedDetail'));
+
+            this.on('after:show-more', () => {
+                this.colorRows();
+            });
         },
 
         setupEvents: function () {
@@ -138,16 +142,22 @@ define(['views/email/record/list', 'email-combined-view:helpers/version'], funct
         },
 
         removeRecordFromList: function (id) {
-            const index = this.collection.findIndex(model => model.id === id);
-
+            const index = _.findIndex(this.collection.models, model => model.id === id);
+        
             Dep.prototype.removeRecordFromList.call(this, id);
-
+        
             if (this.lastOpenId !== id) {
                 return;
             }
-
+        
             this.lastOpenId = null;
-            this.switchTo(index);
+        
+            // Check if the collection is empty before switching
+            if (this.collection.length > 0) {
+                this.switchTo(index);
+            } else {
+                this.getParentView().clearView('combinedDetail');
+            }
         },
 
         /**
@@ -227,11 +237,17 @@ define(['views/email/record/list', 'email-combined-view:helpers/version'], funct
         },
 
         switchTo: function (index) {
+            // Ensure the index is within the bounds of the collection
+            if (this.collection.length === 0) {
+                return;
+            }
+        
             const newIndex = Math.min(this.collection.length - 1, Math.max(0, index));
             const neighbourId = this.collection.at(newIndex).id;
-
+        
             this.switchToId(neighbourId);
         },
+        
 
         switchToId: function (id) {
             this.$el.find('.list-row[data-id="' + id + '"] > .cell[data-name="combinedCell"]').trigger('click');

@@ -1,4 +1,4 @@
-define(['views/record/detail-small', 'views/email/detail'], (Dep, Detail) => {
+define(['views/record/detail-small', 'views/email/detail', 'views/email/record/detail'], (Dep, Detail, Record) => {
     return Dep.extend({
 
         setup: function () {
@@ -31,15 +31,6 @@ define(['views/record/detail-small', 'views/email/detail'], (Dep, Detail) => {
             }, false);
 
             this.addButton({
-                name: 'createTask',
-                label: 'Create Task',
-                action: 'createTask',
-                acl: 'create',
-                aclScope: 'Task',
-                style: 'success'
-            }, false);
-
-            this.addButton({
                 name: this.getPreferences().get('emailReplyToAllByDefault') ? 'replyToAll' : 'reply',
                 label: 'Reply',
                 style: 'danger'
@@ -63,6 +54,12 @@ define(['views/record/detail-small', 'views/email/detail'], (Dep, Detail) => {
             }, true);
 
             this.addDropdownItem(false);
+            this.hideActionItem('duplicate');
+
+            this.addDropdownItem({
+                label: 'Print',
+                name: 'print',
+            });
 
             if (this.model.get('status') === 'Archived') {
                 if (!this.model.get('parentId')) {
@@ -121,6 +118,10 @@ define(['views/record/detail-small', 'views/email/detail'], (Dep, Detail) => {
 
         actionCreateTask: function () {
             Detail.prototype.actionCreateTask.call(this);
+        },
+
+        actionPrint: function () {
+            Record.prototype.actionPrint.call(this);
         },
 
         actionCreateCase: function () {
